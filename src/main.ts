@@ -16,26 +16,43 @@ game.initialize()
 game.addPlayer('ai')
 game.addPlayer('dijkstra')
 
-const INTERVAL = ms('0.1 seconds')
+let fast = false
+const INTERVAL_FAST = ms('0.1 seconds')
+const INTERVAL_SLOW = ms('0.7 seconds')
+const interval = () => (fast ? INTERVAL_FAST : INTERVAL_SLOW)
 let lastRender = 0
 let round = 0
+let handle: number | undefined = undefined
 const loop = (time: number) => {
-  round += 1
   game.handleInputs()
-  if (time - lastRender > INTERVAL) {
+  if (time - lastRender > interval()) {
+    round += 1
     lastRender = time
     game.update()
-    render(
-      html`
-        <p>Round ${round}</p>
-        ${game.scoreboard()}
-      `,
-      document.getElementById('scoreboard')!,
-    )
+    updateMeta()
   }
-  requestAnimationFrame(loop)
+  handle = requestAnimationFrame(loop)
 }
-requestAnimationFrame(loop)
+updateMeta()
+
+document.getElementById('pause')?.addEventListener('click', (event) => {
+  event.preventDefault()
+  if (handle === undefined) {
+    handle = requestAnimationFrame(loop)
+    ;(event.target as HTMLButtonElement).innerHTML = 'Pause'
+  } else {
+    cancelAnimationFrame(handle)
+    handle = undefined
+    ;(event.target as HTMLButtonElement).innerHTML = 'Start'
+  }
+  updateMeta()
+})
+
+document.getElementById('toggle-speed')?.addEventListener('click', (event) => {
+  event.preventDefault()
+  fast = !fast
+  updateMeta()
+})
 
 window.addEventListener('gamepadconnected', (event) => {
   game.addPlayer('human', event.gamepad)
@@ -44,3 +61,14 @@ window.addEventListener('gamepadconnected', (event) => {
 window.removeEventListener('gamepaddisconnected', (event) => {
   game.removePlayer(event.gamepad)
 })
+
+function updateMeta() {
+  render(
+    html`
+      <p>Round ${round}${handle === undefined ? ' (paused)' : ''}</p>
+      <p>Game is running <b>${fast ? 'fast' : 'slow'}</b></p>
+      ${game.scoreboard()}
+    `,
+    document.getElementById('scoreboard')!,
+  )
+}
