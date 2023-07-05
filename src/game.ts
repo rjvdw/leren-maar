@@ -3,6 +3,7 @@ import { html } from 'lit-html'
 import { HumanPlayer } from './human-player.ts'
 import { AiPlayer } from './ai-player.ts'
 import { DijkstraPlayer } from './dijkstra-player.ts'
+import { Controls } from './controls.ts'
 
 const MAX_TREATS = 5
 
@@ -77,15 +78,19 @@ export class Game {
 
   addPlayer(type: 'ai'): void
   addPlayer(type: 'dijkstra'): void
-  addPlayer(type: 'human', gamepad: Gamepad): void
-  addPlayer(type: 'ai' | 'dijkstra' | 'human', gamepad?: Gamepad): void {
+  addPlayer(type: 'human', gamepad: Gamepad, controls: Controls): void
+  addPlayer(
+    type: 'ai' | 'dijkstra' | 'human',
+    gamepad?: Gamepad,
+    controls?: Controls,
+  ): void {
     let player: Player
     if (type === 'ai') {
       player = new AiPlayer()
     } else if (type === 'dijkstra') {
       player = new DijkstraPlayer()
-    } else if (gamepad) {
-      player = new HumanPlayer(gamepad)
+    } else if (gamepad && controls) {
+      player = new HumanPlayer(gamepad, controls)
     } else {
       throw new Error(`player with type ${type} could not be initiated`)
     }

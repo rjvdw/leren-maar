@@ -1,6 +1,7 @@
 import { notNull } from './util.ts'
 import { GAMEPAD } from './gamepad.ts'
 import { Direction, Player } from './player.ts'
+import { Controls } from './controls.ts'
 
 export class HumanPlayer implements Player {
   readonly #gamepadId: string
@@ -8,6 +9,7 @@ export class HumanPlayer implements Player {
   #position: [number, number]
   readonly #color: string
   #buttonState: Record<number, boolean>
+  readonly #controls: Controls
 
   get position(): [number, number] {
     return [...this.#position]
@@ -21,17 +23,15 @@ export class HumanPlayer implements Player {
     return this.#color
   }
 
-  constructor(gamepad: Gamepad) {
+  constructor(gamepad: Gamepad, controls: Controls) {
     this.#gamepadId = gamepad.id
     this.#direction = null
     this.#position = [0, 0]
     this.#color = '#c33'
-    this.#buttonState = {
-      [GAMEPAD.UP]: gamepad.buttons[GAMEPAD.UP].pressed,
-      [GAMEPAD.DOWN]: gamepad.buttons[GAMEPAD.DOWN].pressed,
-      [GAMEPAD.LEFT]: gamepad.buttons[GAMEPAD.LEFT].pressed,
-      [GAMEPAD.RIGHT]: gamepad.buttons[GAMEPAD.RIGHT].pressed,
-    }
+    this.#buttonState = Object.fromEntries(
+      Object.values(GAMEPAD).map((idx) => [idx, gamepad.buttons[idx].pressed]),
+    )
+    this.#controls = controls
   }
 
   hasGamepad(gamepad: Gamepad) {
@@ -63,11 +63,22 @@ export class HumanPlayer implements Player {
       const button = gamepad.buttons[buttonIdx]
 
       if (button.pressed && !this.#buttonState[buttonIdx]) {
-        // button pressed
         this.#direction = this.#direction === direction ? null : direction
       }
       this.#buttonState[buttonIdx] = button.pressed
     }
+
+    const startButton = gamepad.buttons[GAMEPAD.START]
+    if (startButton.pressed && !this.#buttonState[GAMEPAD.START]) {
+      this.#controls.toggle()
+    }
+    this.#buttonState[GAMEPAD.START] = startButton.pressed
+
+    const selectButton = gamepad.buttons[GAMEPAD.SELECT]
+    if (selectButton.pressed && !this.#buttonState[GAMEPAD.SELECT]) {
+      this.#controls.toggleSpeed()
+    }
+    this.#buttonState[GAMEPAD.SELECT] = selectButton.pressed
   }
 
   move(): Direction | null {
