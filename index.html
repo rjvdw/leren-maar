@@ -8,12 +8,24 @@
     <script defer type="module" src="/src/main.ts"></script>
   </head>
   <body>
+    <h1>AI game</h1>
     <canvas id="game"></canvas>
+    <div id="status"></div>
     <div id="controls">
+      <h2>Controls</h2>
       <button id="pause">Start</button>
       <button id="toggle-speed">Toggle Speed</button>
       <button id="reset">Reset</button>
     </div>
-    <div id="scoreboard"></div>
+    <div id="players">
+      <h2>Players</h2>
+      <label>
+        <input type="checkbox" id="trad-bot" /> Traditional bot
+      </label>
+      <label><input type="checkbox" id="ai-bot" /> AI bot</label>
+    </div>
+    <div id="scoreboard">
+      <h2>Scoreboard</h2>
+    </div>
   </body>
 </html>

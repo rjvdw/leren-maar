@@ -56,7 +56,7 @@ export class Game {
   }
 
   get canvasWidth(): number {
-    return this.width * this.#gridSize
+    return this.#canvas.width
   }
 
   set canvasWidth(w: number) {
@@ -64,7 +64,7 @@ export class Game {
   }
 
   get canvasHeight(): number {
-    return this.height * this.#gridSize
+    return this.#canvas.height
   }
 
   set canvasHeight(h: number) {
@@ -75,9 +75,13 @@ export class Game {
     this.#players = this.#players.filter(
       (player) => player instanceof HumanPlayer,
     )
+    for (const player of this.#players) {
+      this.#scores.set(player, 0)
+      player.position = [0, 0]
+    }
     this.#treats = []
-    this.#scores = new WeakMap()
     this.initialize()
+    this.draw()
   }
 
   addPlayer(type: 'ai'): void
@@ -100,12 +104,29 @@ export class Game {
     }
     this.#players.push(player)
     this.#scores.set(player, 0)
+    this.draw()
   }
 
-  removePlayer(gamepad: Gamepad) {
-    this.#players = this.#players.filter(
-      (player) => !player.hasGamepad(gamepad),
-    )
+  removePlayer(cls: typeof AiPlayer): void
+  removePlayer(cls: typeof DijkstraPlayer): void
+  removePlayer(gamepad: Gamepad): void
+  removePlayer(arg: typeof AiPlayer | typeof DijkstraPlayer | Gamepad) {
+    if (arg === AiPlayer) {
+      this.#players = this.#players.filter(
+        (player) => !(player instanceof AiPlayer),
+      )
+    } else if (arg === DijkstraPlayer) {
+      this.#players = this.#players.filter(
+        (player) => !(player instanceof DijkstraPlayer),
+      )
+    } else {
+      this.#players = this.#players.filter(
+        (player) => !player.hasGamepad(arg as Gamepad),
+      )
+    }
+
+    this.initialize()
+    this.draw()
   }
 
   initialize() {
@@ -169,12 +190,23 @@ export class Game {
 
   scoreboard() {
     return html`
-      <ul>
-        ${this.#players.map(
-          (player) => html` <li>Score: ${this.#scores.get(player)}</li>`,
-        )}
-      </ul>
+      ${this.#players.map((player) => this.#scoreboardPlayer(player))}
     `
+  }
+
+  #scoreboardPlayer(player: Player) {
+    let name: string
+    if (player instanceof AiPlayer) {
+      name = 'AI bot'
+    } else if (player instanceof DijkstraPlayer) {
+      name = 'Traditional bot'
+    } else if (player instanceof HumanPlayer) {
+      name = 'Human'
+    } else {
+      name = 'Player'
+    }
+
+    return html` <p>${name}: ${this.#scores.get(player)}</p> `
   }
 
   #addRandomTreat() {

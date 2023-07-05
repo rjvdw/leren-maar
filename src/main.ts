@@ -2,6 +2,8 @@ import ms from 'ms'
 import { Game } from './game.ts'
 import { html, render } from 'lit-html'
 import { Controls } from './types.ts'
+import { AiPlayer } from './ai-player.ts'
+import { DijkstraPlayer } from './dijkstra-player.ts'
 
 const canvas = document.getElementById('game')
 if (canvas === null || !(canvas instanceof HTMLCanvasElement)) {
@@ -18,9 +20,14 @@ const controls: Controls = {
   setup() {
     controls.pause()
     round = 0
+    game.reset()
     game.initialize()
-    game.addPlayer('ai')
-    game.addPlayer('dijkstra')
+    if ((document.getElementById('ai-bot') as HTMLInputElement).checked) {
+      game.addPlayer('ai')
+    }
+    if ((document.getElementById('trad-bot') as HTMLInputElement).checked) {
+      game.addPlayer('dijkstra')
+    }
     game.draw()
   },
 
@@ -63,13 +70,27 @@ const loop = (time: number) => {
     html`
       <p>Round ${round}${paused ? ' (paused)' : ''}</p>
       <p>Game is running <b>${fast ? 'fast' : 'slow'}</b></p>
-      ${game.scoreboard()}
     `,
-    document.getElementById('scoreboard')!,
+    document.getElementById('status')!,
   )
+  render(game.scoreboard(), document.getElementById('scoreboard')!)
   requestAnimationFrame(loop)
 }
 requestAnimationFrame(loop)
+
+document.getElementById('ai-bot')?.addEventListener('change', (event) => {
+  game.removePlayer(AiPlayer)
+  if ((event.target as HTMLInputElement).checked) {
+    game.addPlayer('ai')
+  }
+})
+
+document.getElementById('trad-bot')?.addEventListener('change', (event) => {
+  game.removePlayer(DijkstraPlayer)
+  if ((event.target as HTMLInputElement).checked) {
+    game.addPlayer('dijkstra')
+  }
+})
 
 document.getElementById('pause')?.addEventListener('click', (event) => {
   event.preventDefault()
@@ -88,8 +109,11 @@ document.getElementById('reset')?.addEventListener('click', (event) => {
 
 window.addEventListener('gamepadconnected', (event) => {
   game.addPlayer('human', event.gamepad, controls)
+  game.draw()
 })
 
 window.removeEventListener('gamepaddisconnected', (event) => {
   game.removePlayer(event.gamepad)
+  game.initialize()
+  game.draw()
 })
