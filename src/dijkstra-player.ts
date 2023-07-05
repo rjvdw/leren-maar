@@ -9,10 +9,7 @@ export class DijkstraPlayer extends BotPlayer implements Player {
     board: { width: number; height: number },
     treats: Position[],
   ): Direction | null {
-    let treat = this.#findClosestTreat(treats)
-    if (treat === undefined) {
-      treat = [Math.floor(board.width / 2), Math.floor(board.height / 2)]
-    }
+    const treat = this.findTarget(board, treats)
 
     if (this.position[1] > treat[1]) {
       return Direction.UP
@@ -27,28 +24,5 @@ export class DijkstraPlayer extends BotPlayer implements Player {
       return Direction.RIGHT
     }
     return null
-  }
-
-  #findClosestTreat(treats: Position[]): Position | undefined {
-    let closest = undefined
-
-    for (const treat of treats) {
-      if (closest === undefined) {
-        closest = treat
-      } else {
-        if (
-          this.#distance(this.position, treat) <
-          this.#distance(this.position, closest)
-        ) {
-          closest = treat
-        }
-      }
-    }
-
-    return closest
-  }
-
-  #distance([x0, y0]: Position, [x1, y1]: Position): number {
-    return Math.abs(x0 - x1) + Math.abs(y0 - y1)
   }
 }

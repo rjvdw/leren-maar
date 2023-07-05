@@ -21,6 +21,24 @@ export class Game {
   #treats: Position[]
   #scores: WeakMap<Player, number>
 
+  constructor(canvas: HTMLCanvasElement, config: GameConfig = {}) {
+    this.#canvas = canvas
+    const ctx = canvas.getContext('2d')
+    if (!ctx) {
+      throw new Error('unable to initialize rendering context')
+    }
+    this.#ctx = ctx
+
+    const { width = 20, height = 20, gridSize = 24 } = config
+
+    this.#gridSize = gridSize
+    this.width = width
+    this.height = height
+    this.#players = []
+    this.#treats = []
+    this.#scores = new WeakMap()
+  }
+
   get width() {
     return Math.floor(this.#canvas.width / this.#gridSize)
   }
@@ -51,24 +69,6 @@ export class Game {
 
   set canvasHeight(h: number) {
     this.#canvas.height = h + 1
-  }
-
-  constructor(canvas: HTMLCanvasElement, config: GameConfig = {}) {
-    this.#canvas = canvas
-    const ctx = canvas.getContext('2d')
-    if (!ctx) {
-      throw new Error('unable to initialize rendering context')
-    }
-    this.#ctx = ctx
-
-    const { width = 20, height = 20, gridSize = 24 } = config
-
-    this.#gridSize = gridSize
-    this.width = width
-    this.height = height
-    this.#players = []
-    this.#treats = []
-    this.#scores = new WeakMap()
   }
 
   reset() {
@@ -106,57 +106,6 @@ export class Game {
     this.#players = this.#players.filter(
       (player) => !player.hasGamepad(gamepad),
     )
-  }
-
-  #addRandomTreat() {
-    const x = Math.floor(Math.random() * this.width)
-    const y = Math.floor(Math.random() * this.height)
-
-    if (!this.#treats.find(([x1, y1]) => x1 === x && y1 === y)) {
-      this.#treats.push([x, y])
-    }
-  }
-
-  #clear() {
-    this.#ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight)
-  }
-
-  #drawGrid() {
-    this.#ctx.beginPath()
-    this.#ctx.strokeStyle = '#999'
-    this.#ctx.lineWidth = 0.5
-    for (let x = 0; x <= this.canvasWidth; x += this.#gridSize) {
-      this.#ctx.moveTo(x + 0.5, -0.5)
-      this.#ctx.lineTo(x + 0.5, this.canvasHeight + 0.5)
-    }
-    for (let y = 0; y <= this.canvasHeight; y += this.#gridSize) {
-      this.#ctx.moveTo(-0.5, y + 0.5)
-      this.#ctx.lineTo(this.canvasWidth + 0.5, y + 0.5)
-    }
-    this.#ctx.stroke()
-  }
-
-  #clearPlayer(player: Player) {
-    const [x, y] = player.position
-    this.#ctx.clearRect(
-      x * this.#gridSize + 1,
-      y * this.#gridSize + 1,
-      this.#gridSize - 2,
-      this.#gridSize - 2,
-    )
-  }
-
-  #drawCircle([x, y]: Position, color: string) {
-    this.#ctx.beginPath()
-    this.#ctx.fillStyle = color
-    this.#ctx.arc(
-      x * this.#gridSize + this.#gridSize / 2,
-      y * this.#gridSize + this.#gridSize / 2,
-      this.#gridSize * 0.3,
-      0,
-      2 * Math.PI,
-    )
-    this.#ctx.fill()
   }
 
   initialize() {
@@ -222,10 +171,61 @@ export class Game {
     return html`
       <ul>
         ${this.#players.map(
-          (player) => html`<li>Score: ${this.#scores.get(player)}</li>`,
+          (player) => html` <li>Score: ${this.#scores.get(player)}</li>`,
         )}
       </ul>
     `
+  }
+
+  #addRandomTreat() {
+    const x = Math.floor(Math.random() * this.width)
+    const y = Math.floor(Math.random() * this.height)
+
+    if (!this.#treats.find(([x1, y1]) => x1 === x && y1 === y)) {
+      this.#treats.push([x, y])
+    }
+  }
+
+  #clear() {
+    this.#ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight)
+  }
+
+  #drawGrid() {
+    this.#ctx.beginPath()
+    this.#ctx.strokeStyle = '#999'
+    this.#ctx.lineWidth = 0.5
+    for (let x = 0; x <= this.canvasWidth; x += this.#gridSize) {
+      this.#ctx.moveTo(x + 0.5, -0.5)
+      this.#ctx.lineTo(x + 0.5, this.canvasHeight + 0.5)
+    }
+    for (let y = 0; y <= this.canvasHeight; y += this.#gridSize) {
+      this.#ctx.moveTo(-0.5, y + 0.5)
+      this.#ctx.lineTo(this.canvasWidth + 0.5, y + 0.5)
+    }
+    this.#ctx.stroke()
+  }
+
+  #clearPlayer(player: Player) {
+    const [x, y] = player.position
+    this.#ctx.clearRect(
+      x * this.#gridSize + 1,
+      y * this.#gridSize + 1,
+      this.#gridSize - 2,
+      this.#gridSize - 2,
+    )
+  }
+
+  #drawCircle([x, y]: Position, color: string) {
+    this.#ctx.beginPath()
+    this.#ctx.fillStyle = color
+    this.#ctx.arc(
+      x * this.#gridSize + this.#gridSize / 2,
+      y * this.#gridSize + this.#gridSize / 2,
+      this.#gridSize * 0.3,
+      0,
+      2 * Math.PI,
+    )
+    this.#ctx.fill()
   }
 
   #checkTreat(player: Player) {

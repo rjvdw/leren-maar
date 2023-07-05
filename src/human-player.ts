@@ -4,13 +4,12 @@ import { Direction, Player } from './player.ts'
 import { Controls, Position } from './types.ts'
 
 export class HumanPlayer implements Player {
+  public readonly color = '#c33'
+  public position: Position = [0, 0]
   readonly #gamepadId: string
   #direction: Direction | null = null
   #buttonState: Record<number, boolean>
   readonly #controls: Controls
-
-  public readonly color = '#c33'
-  public position: Position = [0, 0]
 
   constructor(gamepad: Gamepad, controls: Controls) {
     this.#gamepadId = gamepad.id
@@ -22,13 +21,6 @@ export class HumanPlayer implements Player {
 
   hasGamepad(gamepad: Gamepad) {
     return gamepad.id === this.#gamepadId
-  }
-
-  #getGamepad(): Gamepad | undefined {
-    return navigator
-      .getGamepads()
-      .filter(notNull)
-      .find((gamepad) => this.hasGamepad(gamepad))
   }
 
   handleInputs() {
@@ -69,5 +61,12 @@ export class HumanPlayer implements Player {
 
   move(): Direction | null {
     return this.#direction
+  }
+
+  #getGamepad(): Gamepad | undefined {
+    return navigator
+      .getGamepads()
+      .filter(notNull)
+      .find((gamepad) => this.hasGamepad(gamepad))
   }
 }
