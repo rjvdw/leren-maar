@@ -167,7 +167,7 @@ export class Game {
   }
 
   update() {
-    if (this.#treats.length < MAX_TREATS && Math.random() < 0.1) {
+    if (Math.random() < treatDistribution(this.#treats.length, MAX_TREATS)) {
       this.#addRandomTreat()
     }
 
@@ -233,4 +233,29 @@ export class Game {
       }
     }
   }
+}
+
+/**
+ * Creates a distribution for when new treats are generated.
+ *
+ * When there are more treats on the board, the chance that a new treat is generated decreases.
+ *
+ * @param current The current number of treats on the board.
+ * @param max     The maximum number of treats allowed on the board.
+ * @return The chance that a new treat should be generated.
+ */
+function treatDistribution(current: number, max: number): number {
+  if (current >= max) {
+    return 0
+  }
+
+  const yScalingFactor = 4
+  const xScalingFactor = 2
+  const xOffset = 1
+
+  const effectiveRange = xScalingFactor + max
+  const numerator = effectiveRange - current
+  const denominator = effectiveRange + xOffset
+
+  return (numerator / denominator) ** yScalingFactor
 }
