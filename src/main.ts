@@ -31,6 +31,10 @@ const controls: Controls = {
     game.draw()
   },
 
+  reset() {
+    controls.setup()
+  },
+
   start() {
     paused = false
     ;(document.getElementById('pause') as HTMLButtonElement).innerHTML = 'Pause'
@@ -51,6 +55,14 @@ const controls: Controls = {
 
   toggleSpeed() {
     fast = !fast
+  },
+
+  toggleAiBot() {
+    ;(document.getElementById('ai-bot') as HTMLInputElement).click()
+  },
+
+  toggleTradBot() {
+    ;(document.getElementById('trad-bot') as HTMLInputElement).click()
   },
 }
 
@@ -104,7 +116,7 @@ document.getElementById('toggle-speed')?.addEventListener('click', (event) => {
 
 document.getElementById('reset')?.addEventListener('click', (event) => {
   event.preventDefault()
-  controls.setup()
+  controls.reset()
 })
 
 window.addEventListener('gamepadconnected', (event) => {

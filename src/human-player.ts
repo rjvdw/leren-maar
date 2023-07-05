@@ -57,6 +57,24 @@ export class HumanPlayer implements Player {
       this.#controls.toggleSpeed()
     }
     this.#buttonState[GAMEPAD.SELECT] = selectButton.pressed
+
+    const xButton = gamepad.buttons[GAMEPAD.X]
+    if (xButton.pressed && !this.#buttonState[GAMEPAD.X]) {
+      this.#controls.reset()
+    }
+    this.#buttonState[GAMEPAD.X] = xButton.pressed
+
+    const lbButton = gamepad.buttons[GAMEPAD.LB]
+    if (lbButton.pressed && !this.#buttonState[GAMEPAD.LB]) {
+      this.#controls.toggleAiBot()
+    }
+    this.#buttonState[GAMEPAD.LB] = lbButton.pressed
+
+    const rbButton = gamepad.buttons[GAMEPAD.RB]
+    if (rbButton.pressed && !this.#buttonState[GAMEPAD.RB]) {
+      this.#controls.toggleTradBot()
+    }
+    this.#buttonState[GAMEPAD.RB] = rbButton.pressed
   }
 
   move(): Direction | null {
