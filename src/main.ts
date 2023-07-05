@@ -1,4 +1,6 @@
+import ms from 'ms'
 import { Game } from './game.ts'
+import { render } from 'lit-html'
 
 const canvas = document.getElementById('game')
 if (canvas === null || !(canvas instanceof HTMLCanvasElement)) {
@@ -8,8 +10,15 @@ if (canvas === null || !(canvas instanceof HTMLCanvasElement)) {
 const game = new Game(canvas)
 game.initialize()
 
-const loop = () => {
-  game.render()
+const INTERVAL = ms('0.2 seconds')
+let lastRender = 0
+const loop = (time: number) => {
+  game.handleInputs()
+  if (time - lastRender > INTERVAL) {
+    lastRender = time
+    game.update()
+    render(game.scoreboard(), document.getElementById('scoreboard')!)
+  }
   requestAnimationFrame(loop)
 }
 requestAnimationFrame(loop)

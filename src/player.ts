@@ -14,6 +14,7 @@ export class Player {
   #position: [number, number]
   readonly #color: string
   #buttonState: Record<number, boolean>
+  #score: number
 
   get gamepad(): Gamepad | undefined {
     return navigator
@@ -34,6 +35,10 @@ export class Player {
     return this.#color
   }
 
+  get score(): number {
+    return this.#score
+  }
+
   constructor(gamepad: Gamepad) {
     this.#gamepadId = gamepad.id
     this.#direction = null
@@ -45,6 +50,7 @@ export class Player {
       [GAMEPAD.LEFT]: gamepad.buttons[GAMEPAD.LEFT].pressed,
       [GAMEPAD.RIGHT]: gamepad.buttons[GAMEPAD.RIGHT].pressed,
     }
+    this.#score = 0
   }
 
   hasGamepad(gamepad: Gamepad) {
@@ -52,13 +58,6 @@ export class Player {
   }
 
   update(isLegalPosition: (position: [number, number]) => boolean) {
-    const gamepad = this.gamepad
-    if (!gamepad) {
-      console.error('gamepad not available for player', this)
-      return
-    }
-
-    this.#updateDirection(gamepad)
     const oldPosition = this.#position
     this.#step()
     if (!isLegalPosition(this.#position)) {
@@ -67,23 +66,8 @@ export class Player {
     }
   }
 
-  #updateDirection(gamepad: Gamepad) {
-    const dirs = [
-      [Direction.UP, GAMEPAD.UP],
-      [Direction.DOWN, GAMEPAD.DOWN],
-      [Direction.LEFT, GAMEPAD.LEFT],
-      [Direction.RIGHT, GAMEPAD.RIGHT],
-    ]
-
-    for (const [direction, buttonIdx] of dirs) {
-      const button = gamepad.buttons[buttonIdx]
-
-      if (button.pressed && !this.#buttonState[buttonIdx]) {
-        // button pressed
-        this.#direction = this.#direction === direction ? null : direction
-      }
-      this.#buttonState[buttonIdx] = button.pressed
-    }
+  givePoint() {
+    this.#score += 1
   }
 
   #step() {
@@ -99,6 +83,31 @@ export class Player {
     }
     if (this.#direction === Direction.RIGHT) {
       this.#position = [x + 1, y]
+    }
+  }
+
+  handleInputs() {
+    const gamepad = this.gamepad
+    if (!gamepad) {
+      console.error('gamepad not available for player', this)
+      return
+    }
+
+    const dirs = [
+      [Direction.UP, GAMEPAD.UP],
+      [Direction.DOWN, GAMEPAD.DOWN],
+      [Direction.LEFT, GAMEPAD.LEFT],
+      [Direction.RIGHT, GAMEPAD.RIGHT],
+    ]
+
+    for (const [direction, buttonIdx] of dirs) {
+      const button = gamepad.buttons[buttonIdx]
+
+      if (button.pressed && !this.#buttonState[buttonIdx]) {
+        // button pressed
+        this.#direction = this.#direction === direction ? null : direction
+      }
+      this.#buttonState[buttonIdx] = button.pressed
     }
   }
 }

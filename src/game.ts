@@ -1,4 +1,7 @@
 import { Player } from './player.ts'
+import { html } from 'lit-html'
+
+const MAX_TREATS = 5
 
 export type GameConfig = {
   width?: number
@@ -11,6 +14,7 @@ export class Game {
   readonly #ctx: CanvasRenderingContext2D
   #gridSize: number
   #players: Player[]
+  #treats: [number, number][]
 
   get gridWidth() {
     return Math.floor(this.#canvas.width / this.#gridSize)
@@ -54,6 +58,7 @@ export class Game {
     this.height = height
     this.#gridSize = gridSize
     this.#players = []
+    this.#treats = []
   }
 
   addPlayer(gamepad: Gamepad) {
@@ -64,6 +69,15 @@ export class Game {
     this.#players = this.#players.filter(
       (player) => !player.hasGamepad(gamepad)
     )
+  }
+
+  #addRandomTreat() {
+    const x = Math.floor(Math.random() * this.gridWidth)
+    const y = Math.floor(Math.random() * this.gridHeight)
+
+    if (!this.#treats.find(([x1, y1]) => x1 === x && y1 === y)) {
+      this.#treats.push([x, y])
+    }
   }
 
   #clear() {
@@ -95,10 +109,9 @@ export class Game {
     )
   }
 
-  #drawPlayer(player: Player) {
-    const [x, y] = player.position
+  #drawCircle([x, y]: [number, number], color: string) {
     this.#ctx.beginPath()
-    this.#ctx.fillStyle = player.color
+    this.#ctx.fillStyle = color
     this.#ctx.arc(
       x * this.#gridSize + this.#gridSize / 2,
       y * this.#gridSize + this.#gridSize / 2,
@@ -114,14 +127,47 @@ export class Game {
     this.#drawGrid()
   }
 
-  render() {
+  handleInputs() {
+    for (const player of this.#players) {
+      player.handleInputs()
+    }
+  }
+
+  update() {
     for (const player of this.#players) {
       this.#clearPlayer(player)
       player.update(
         ([x, y]) =>
           !(x < 0 || y < 0 || x >= this.gridWidth || y >= this.gridHeight)
       )
-      this.#drawPlayer(player)
+      this.#drawCircle(player.position, player.color)
+      this.#checkTreat(player)
+    }
+
+    if (this.#treats.length < MAX_TREATS && Math.random() < 0.1) {
+      this.#addRandomTreat()
+    }
+
+    for (const treat of this.#treats) {
+      this.#drawCircle(treat, '#3c3')
+    }
+  }
+
+  scoreboard() {
+    return html`
+      <ul>
+        ${this.#players.map((player) => html`<li>Score: ${player.score}</li>`)}
+      </ul>
+    `
+  }
+
+  #checkTreat(player: Player) {
+    const [px, py] = player.position
+    for (const [tx, ty] of this.#treats) {
+      if (tx === px && ty === py) {
+        this.#treats = this.#treats.filter(([tx, ty]) => tx !== px || ty !== py)
+        player.givePoint()
+      }
     }
   }
 }
