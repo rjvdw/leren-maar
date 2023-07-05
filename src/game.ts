@@ -86,7 +86,7 @@ export class Game {
 
   removePlayer(gamepad: Gamepad) {
     this.#players = this.#players.filter(
-      (player) => !player.hasGamepad(gamepad)
+      (player) => !player.hasGamepad(gamepad),
     )
   }
 
@@ -124,7 +124,7 @@ export class Game {
       x * this.#gridSize + 1,
       y * this.#gridSize + 1,
       this.#gridSize - 2,
-      this.#gridSize - 2
+      this.#gridSize - 2,
     )
   }
 
@@ -136,7 +136,7 @@ export class Game {
       y * this.#gridSize + this.#gridSize / 2,
       this.#gridSize * 0.3,
       0,
-      2 * Math.PI
+      2 * Math.PI,
     )
     this.#ctx.fill()
   }
@@ -157,7 +157,7 @@ export class Game {
       this.#clearPlayer(player)
       const dir = player.move(
         [...this.#treats],
-        this.#players.filter((p) => p !== player).map((p) => p.position)
+        this.#players.filter((p) => p !== player).map((p) => p.position),
       )
       let [x, y] = player.position
       switch (dir) {
@@ -196,7 +196,7 @@ export class Game {
     return html`
       <ul>
         ${this.#players.map(
-          (player) => html`<li>Score: ${this.#scores.get(player)}</li>`
+          (player) => html`<li>Score: ${this.#scores.get(player)}</li>`,
         )}
       </ul>
     `

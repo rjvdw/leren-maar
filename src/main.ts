@@ -30,7 +30,7 @@ const loop = (time: number) => {
         <p>Round ${round}</p>
         ${game.scoreboard()}
       `,
-      document.getElementById('scoreboard')!
+      document.getElementById('scoreboard')!,
     )
   }
   requestAnimationFrame(loop)

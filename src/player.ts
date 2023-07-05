@@ -14,6 +14,6 @@ export interface Player {
   handleInputs(): void
   move(
     treats: [number, number][],
-    players: [number, number][]
+    players: [number, number][],
   ): Direction | null
 }
