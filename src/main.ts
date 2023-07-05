@@ -10,6 +10,8 @@ if (canvas === null || !(canvas instanceof HTMLCanvasElement)) {
 const game = new Game(canvas)
 game.initialize()
 
+game.addPlayer()
+
 const INTERVAL = ms('0.2 seconds')
 let lastRender = 0
 const loop = (time: number) => {

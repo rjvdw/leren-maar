@@ -1,5 +1,7 @@
 import { Player } from './player.ts'
 import { html } from 'lit-html'
+import { HumanPlayer } from './human-player.ts'
+import { AiPlayer } from './ai-player.ts'
 
 const MAX_TREATS = 5
 
@@ -15,6 +17,7 @@ export class Game {
   #gridSize: number
   #players: Player[]
   #treats: [number, number][]
+  #scores: WeakMap<Player, number>
 
   get gridWidth() {
     return Math.floor(this.#canvas.width / this.#gridSize)
@@ -59,10 +62,20 @@ export class Game {
     this.#gridSize = gridSize
     this.#players = []
     this.#treats = []
+    this.#scores = new WeakMap()
   }
 
-  addPlayer(gamepad: Gamepad) {
-    this.#players.push(new Player(gamepad))
+  addPlayer(): void
+  addPlayer(gamepad: Gamepad): void
+  addPlayer(gamepad?: Gamepad): void {
+    let player: Player
+    if (gamepad === undefined) {
+      player = new AiPlayer()
+    } else {
+      player = new HumanPlayer(gamepad)
+    }
+    this.#players.push(player)
+    this.#scores.set(player, 0)
   }
 
   removePlayer(gamepad: Gamepad) {
@@ -156,7 +169,9 @@ export class Game {
   scoreboard() {
     return html`
       <ul>
-        ${this.#players.map((player) => html`<li>Score: ${player.score}</li>`)}
+        ${this.#players.map(
+          (player) => html`<li>Score: ${this.#scores.get(player)}</li>`
+        )}
       </ul>
     `
   }
@@ -166,7 +181,7 @@ export class Game {
     for (const [tx, ty] of this.#treats) {
       if (tx === px && ty === py) {
         this.#treats = this.#treats.filter(([tx, ty]) => tx !== px || ty !== py)
-        player.givePoint()
+        this.#scores.set(player, (this.#scores.get(player) ?? 0) + 1)
       }
     }
   }
