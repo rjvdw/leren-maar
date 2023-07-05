@@ -15,6 +15,7 @@ game.initialize()
 
 game.addPlayer('ai')
 game.addPlayer('dijkstra')
+game.draw()
 
 let fast = false
 const INTERVAL_FAST = ms('0.1 seconds')
@@ -35,15 +36,25 @@ const loop = (time: number) => {
 }
 updateMeta()
 
+const startGame = () => {
+  handle = requestAnimationFrame(loop)
+  ;(document.getElementById('pause') as HTMLButtonElement).innerHTML = 'Pause'
+}
+
+const pauseGame = () => {
+  if (handle !== undefined) {
+    cancelAnimationFrame(handle)
+  }
+  handle = undefined
+  ;(document.getElementById('pause') as HTMLButtonElement).innerHTML = 'Start'
+}
+
 document.getElementById('pause')?.addEventListener('click', (event) => {
   event.preventDefault()
   if (handle === undefined) {
-    handle = requestAnimationFrame(loop)
-    ;(event.target as HTMLButtonElement).innerHTML = 'Pause'
+    startGame()
   } else {
-    cancelAnimationFrame(handle)
-    handle = undefined
-    ;(event.target as HTMLButtonElement).innerHTML = 'Start'
+    pauseGame()
   }
   updateMeta()
 })
@@ -54,12 +65,27 @@ document.getElementById('toggle-speed')?.addEventListener('click', (event) => {
   updateMeta()
 })
 
+document.getElementById('reset')?.addEventListener('click', (event) => {
+  event.preventDefault()
+  pauseGame()
+  round = 0
+
+  game.reset()
+  game.addPlayer('ai')
+  game.addPlayer('dijkstra')
+  game.draw()
+
+  updateMeta()
+})
+
 window.addEventListener('gamepadconnected', (event) => {
   game.addPlayer('human', event.gamepad)
+  updateMeta()
 })
 
 window.removeEventListener('gamepaddisconnected', (event) => {
   game.removePlayer(event.gamepad)
+  updateMeta()
 })
 
 function updateMeta() {

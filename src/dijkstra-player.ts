@@ -21,23 +21,28 @@ export class DijkstraPlayer implements Player {
     return false
   }
 
-  move(treats: [number, number][]): Direction | null {
-    const treat = this.#findClosestTreat(treats)
-
+  move(
+    board: { width: number; height: number },
+    treats: [number, number][],
+  ): Direction | null {
+    let treat = this.#findClosestTreat(treats)
     if (treat === undefined) {
-      return null
+      treat = [Math.floor(board.width / 2), Math.floor(board.height / 2)]
     }
 
-    if (treat[0] < this.#position[0]) {
-      return Direction.LEFT
-    }
-    if (treat[0] > this.#position[0]) {
-      return Direction.RIGHT
-    }
-    if (treat[1] < this.#position[1]) {
+    if (this.#position[1] > treat[1]) {
       return Direction.UP
     }
-    return Direction.DOWN
+    if (this.#position[1] < treat[1]) {
+      return Direction.DOWN
+    }
+    if (this.#position[0] > treat[0]) {
+      return Direction.LEFT
+    }
+    if (this.#position[0] < treat[0]) {
+      return Direction.RIGHT
+    }
+    return null
   }
 
   #findClosestTreat(treats: [number, number][]): [number, number] | undefined {

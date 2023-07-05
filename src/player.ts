@@ -13,6 +13,7 @@ export interface Player {
   hasGamepad(gamepad: Gamepad): boolean
   handleInputs(): void
   move(
+    board: { width: number; height: number },
     treats: [number, number][],
     players: [number, number][],
   ): Direction | null

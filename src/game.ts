@@ -66,6 +66,15 @@ export class Game {
     this.#scores = new WeakMap()
   }
 
+  reset() {
+    this.#players = this.#players.filter(
+      (player) => player instanceof HumanPlayer,
+    )
+    this.#treats = []
+    this.#scores = new WeakMap()
+    this.initialize()
+  }
+
   addPlayer(type: 'ai'): void
   addPlayer(type: 'dijkstra'): void
   addPlayer(type: 'human', gamepad: Gamepad): void
@@ -153,9 +162,14 @@ export class Game {
   }
 
   update() {
+    if (this.#treats.length < MAX_TREATS && Math.random() < 0.1) {
+      this.#addRandomTreat()
+    }
+
     for (const player of this.#players) {
       this.#clearPlayer(player)
       const dir = player.move(
+        { width: this.gridWidth, height: this.gridHeight },
         [...this.#treats],
         this.#players.filter((p) => p !== player).map((p) => p.position),
       )
@@ -179,12 +193,15 @@ export class Game {
         player.position = [x, y]
       }
 
-      this.#drawCircle(player.position, player.color)
       this.#checkTreat(player)
     }
 
-    if (this.#treats.length < MAX_TREATS && Math.random() < 0.1) {
-      this.#addRandomTreat()
+    this.draw()
+  }
+
+  draw() {
+    for (const player of this.#players) {
+      this.#drawCircle(player.position, player.color)
     }
 
     for (const treat of this.#treats) {
