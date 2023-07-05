@@ -13,6 +13,10 @@ export class HumanPlayer implements Player {
     return [...this.#position]
   }
 
+  set position([x, y]: [number, number]) {
+    this.#position = [x, y]
+  }
+
   get color(): string {
     return this.#color
   }
@@ -41,31 +45,6 @@ export class HumanPlayer implements Player {
       .find((gamepad) => this.hasGamepad(gamepad))
   }
 
-  update(isLegalPosition: (position: [number, number]) => boolean) {
-    const oldPosition = this.#position
-    this.#step()
-    if (!isLegalPosition(this.#position)) {
-      this.#position = oldPosition
-      this.#direction = null
-    }
-  }
-
-  #step() {
-    const [x, y] = this.#position
-    if (this.#direction === Direction.UP) {
-      this.#position = [x, y - 1]
-    }
-    if (this.#direction === Direction.DOWN) {
-      this.#position = [x, y + 1]
-    }
-    if (this.#direction === Direction.LEFT) {
-      this.#position = [x - 1, y]
-    }
-    if (this.#direction === Direction.RIGHT) {
-      this.#position = [x + 1, y]
-    }
-  }
-
   handleInputs() {
     const gamepad = this.#getGamepad()
     if (!gamepad) {
@@ -89,5 +68,9 @@ export class HumanPlayer implements Player {
       }
       this.#buttonState[buttonIdx] = button.pressed
     }
+  }
+
+  move(): Direction | null {
+    return this.#direction
   }
 }

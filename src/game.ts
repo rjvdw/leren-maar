@@ -1,4 +1,4 @@
-import { Player } from './player.ts'
+import { Direction, Player } from './player.ts'
 import { html } from 'lit-html'
 import { HumanPlayer } from './human-player.ts'
 import { AiPlayer } from './ai-player.ts'
@@ -149,10 +149,30 @@ export class Game {
   update() {
     for (const player of this.#players) {
       this.#clearPlayer(player)
-      player.update(
-        ([x, y]) =>
-          !(x < 0 || y < 0 || x >= this.gridWidth || y >= this.gridHeight)
+      const dir = player.move(
+        [...this.#treats],
+        this.#players.filter((p) => p !== player).map((p) => p.position)
       )
+      let [x, y] = player.position
+      switch (dir) {
+        case Direction.UP:
+          y -= 1
+          break
+        case Direction.DOWN:
+          y += 1
+          break
+        case Direction.LEFT:
+          x -= 1
+          break
+        case Direction.RIGHT:
+          x += 1
+          break
+      }
+
+      if (x >= 0 && x < this.gridWidth && y >= 0 && y < this.gridHeight) {
+        player.position = [x, y]
+      }
+
       this.#drawCircle(player.position, player.color)
       this.#checkTreat(player)
     }

@@ -7,9 +7,13 @@ export enum Direction {
 
 export interface Player {
   get position(): [number, number]
+  set position(next: [number, number])
   get color(): string
 
   hasGamepad(gamepad: Gamepad): boolean
-  update(isLegalPosition: (position: [number, number]) => boolean): void
   handleInputs(): void
+  move(
+    treats: [number, number][],
+    players: [number, number][]
+  ): Direction | null
 }
