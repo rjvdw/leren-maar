@@ -1,26 +1,8 @@
 import { Direction, Player } from './player.ts'
-import { Position } from './types.ts'
+import { BotPlayer } from './bot-player.ts'
 
-export class AiPlayer implements Player {
-  #position: Position = [0, 0]
-
-  get color(): string {
-    return '#36a'
-  }
-
-  handleInputs(): void {}
-
-  hasGamepad(): boolean {
-    return false
-  }
-
-  get position(): Position {
-    return [...this.#position]
-  }
-
-  set position([x, y]: Position) {
-    this.#position = [x, y]
-  }
+export class AiPlayer extends BotPlayer implements Player {
+  public readonly color = '#36a'
 
   move(): Direction | null {
     const rnd = Math.random()

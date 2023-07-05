@@ -1,26 +1,9 @@
 import { Direction, Player } from './player.ts'
 import { Position } from './types.ts'
+import { BotPlayer } from './bot-player.ts'
 
-export class DijkstraPlayer implements Player {
-  #position: Position = [0, 0]
-
-  get position(): Position {
-    return [...this.#position]
-  }
-
-  set position([x, y]: Position) {
-    this.#position = [x, y]
-  }
-
-  get color(): string {
-    return '#c6c'
-  }
-
-  handleInputs(): void {}
-
-  hasGamepad(): boolean {
-    return false
-  }
+export class DijkstraPlayer extends BotPlayer implements Player {
+  public readonly color = '#c6c'
 
   move(
     board: { width: number; height: number },
@@ -31,16 +14,16 @@ export class DijkstraPlayer implements Player {
       treat = [Math.floor(board.width / 2), Math.floor(board.height / 2)]
     }
 
-    if (this.#position[1] > treat[1]) {
+    if (this.position[1] > treat[1]) {
       return Direction.UP
     }
-    if (this.#position[1] < treat[1]) {
+    if (this.position[1] < treat[1]) {
       return Direction.DOWN
     }
-    if (this.#position[0] > treat[0]) {
+    if (this.position[0] > treat[0]) {
       return Direction.LEFT
     }
-    if (this.#position[0] < treat[0]) {
+    if (this.position[0] < treat[0]) {
       return Direction.RIGHT
     }
     return null
@@ -54,8 +37,8 @@ export class DijkstraPlayer implements Player {
         closest = treat
       } else {
         if (
-          this.#distance(this.#position, treat) <
-          this.#distance(this.#position, closest)
+          this.#distance(this.position, treat) <
+          this.#distance(this.position, closest)
         ) {
           closest = treat
         }

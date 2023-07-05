@@ -5,29 +5,15 @@ import { Controls, Position } from './types.ts'
 
 export class HumanPlayer implements Player {
   readonly #gamepadId: string
-  #direction: Direction | null
-  #position: Position
-  readonly #color: string
+  #direction: Direction | null = null
   #buttonState: Record<number, boolean>
   readonly #controls: Controls
 
-  get position(): Position {
-    return [...this.#position]
-  }
-
-  set position([x, y]: Position) {
-    this.#position = [x, y]
-  }
-
-  get color(): string {
-    return this.#color
-  }
+  public readonly color = '#c33'
+  public position: Position = [0, 0]
 
   constructor(gamepad: Gamepad, controls: Controls) {
     this.#gamepadId = gamepad.id
-    this.#direction = null
-    this.#position = [0, 0]
-    this.#color = '#c33'
     this.#buttonState = Object.fromEntries(
       Object.values(GAMEPAD).map((idx) => [idx, gamepad.buttons[idx].pressed]),
     )
