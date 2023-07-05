@@ -146,7 +146,11 @@ export class Game {
     }
 
     for (const player of this.#players) {
-      this.#clearPlayer(player)
+      this.clearPlayer(player)
+      if (!player.active) {
+        continue
+      }
+
       const dir = player.move(
         { width: this.width, height: this.height },
         [...this.#treats],
@@ -180,7 +184,9 @@ export class Game {
 
   draw() {
     for (const player of this.#players) {
-      this.#drawCircle(player.position, player.color)
+      if (player.active) {
+        this.#drawCircle(player.position, player.color)
+      }
     }
 
     for (const treat of this.#treats) {
@@ -190,7 +196,9 @@ export class Game {
 
   scoreboard() {
     return html`
-      ${this.#players.map((player) => this.#scoreboardPlayer(player))}
+      ${this.#players
+        .filter((player) => player.active)
+        .map((player) => this.#scoreboardPlayer(player))}
     `
   }
 
@@ -237,7 +245,7 @@ export class Game {
     this.#ctx.stroke()
   }
 
-  #clearPlayer(player: Player) {
+  clearPlayer(player: Player) {
     const [x, y] = player.position
     this.#ctx.clearRect(
       x * this.#gridSize + 1,

@@ -4,6 +4,11 @@ export class BotPlayer {
   public position: Position = [0, 0]
 
   /**
+   * bots do not need to be inactive
+   */
+  public readonly active = true
+
+  /**
    * bots do not need to handle inputs
    */
   handleInputs(): void {}

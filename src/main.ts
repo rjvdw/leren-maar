@@ -4,6 +4,7 @@ import { html, render } from 'lit-html'
 import { Controls } from './types.ts'
 import { AiPlayer } from './ai-player.ts'
 import { DijkstraPlayer } from './dijkstra-player.ts'
+import { Player } from './player.ts'
 
 const canvas = document.getElementById('game')
 if (canvas === null || !(canvas instanceof HTMLCanvasElement)) {
@@ -33,6 +34,14 @@ const controls: Controls = {
 
   reset() {
     controls.setup()
+  },
+
+  draw() {
+    game.draw()
+  },
+
+  clearPlayer(player: Player) {
+    game.clearPlayer(player)
   },
 
   start() {

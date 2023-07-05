@@ -11,6 +11,7 @@ export interface Player {
   get position(): Position
   set position(next: Position)
   get color(): string
+  get active(): boolean
 
   hasGamepad(gamepad: Gamepad): boolean
   handleInputs(): void

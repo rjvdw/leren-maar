@@ -1,6 +1,10 @@
+import { Player } from './player.ts'
+
 export type Controls = {
   setup(): void
   reset(): void
+  draw(): void
+  clearPlayer(player: Player): void
   start(): void
   pause(): void
   toggle(): void

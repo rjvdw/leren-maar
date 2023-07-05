@@ -10,6 +10,11 @@ export class HumanPlayer implements Player {
   #direction: Direction | null = null
   #buttonState: Record<number, boolean>
   readonly #controls: Controls
+  #active: boolean = false
+
+  get active() {
+    return this.#active
+  }
 
   constructor(gamepad: Gamepad, controls: Controls) {
     this.#gamepadId = gamepad.id
@@ -58,23 +63,37 @@ export class HumanPlayer implements Player {
     }
     this.#buttonState[GAMEPAD.SELECT] = selectButton.pressed
 
+    const aButton = gamepad.buttons[GAMEPAD.A]
+    if (aButton.pressed && !this.#buttonState[GAMEPAD.A]) {
+      this.#active = true
+      this.#controls.draw()
+    }
+    this.#buttonState[GAMEPAD.A] = aButton.pressed
+
+    const bButton = gamepad.buttons[GAMEPAD.B]
+    if (bButton.pressed && !this.#buttonState[GAMEPAD.B]) {
+      this.#active = false
+      this.#controls.clearPlayer(this)
+    }
+    this.#buttonState[GAMEPAD.B] = bButton.pressed
+
     const xButton = gamepad.buttons[GAMEPAD.X]
     if (xButton.pressed && !this.#buttonState[GAMEPAD.X]) {
       this.#controls.reset()
     }
     this.#buttonState[GAMEPAD.X] = xButton.pressed
 
-    const lbButton = gamepad.buttons[GAMEPAD.LB]
-    if (lbButton.pressed && !this.#buttonState[GAMEPAD.LB]) {
-      this.#controls.toggleAiBot()
-    }
-    this.#buttonState[GAMEPAD.LB] = lbButton.pressed
-
     const rbButton = gamepad.buttons[GAMEPAD.RB]
     if (rbButton.pressed && !this.#buttonState[GAMEPAD.RB]) {
-      this.#controls.toggleTradBot()
+      this.#controls.toggleAiBot()
     }
     this.#buttonState[GAMEPAD.RB] = rbButton.pressed
+
+    const lbButton = gamepad.buttons[GAMEPAD.LB]
+    if (lbButton.pressed && !this.#buttonState[GAMEPAD.LB]) {
+      this.#controls.toggleTradBot()
+    }
+    this.#buttonState[GAMEPAD.LB] = lbButton.pressed
   }
 
   move(): Direction | null {
