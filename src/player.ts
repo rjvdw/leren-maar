@@ -1,3 +1,5 @@
+import { Position } from './types.ts'
+
 export enum Direction {
   UP,
   DOWN,
@@ -6,15 +8,15 @@ export enum Direction {
 }
 
 export interface Player {
-  get position(): [number, number]
-  set position(next: [number, number])
+  get position(): Position
+  set position(next: Position)
   get color(): string
 
   hasGamepad(gamepad: Gamepad): boolean
   handleInputs(): void
   move(
     board: { width: number; height: number },
-    treats: [number, number][],
-    players: [number, number][],
+    treats: Position[],
+    players: Position[],
   ): Direction | null
 }

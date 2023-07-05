@@ -1,7 +1,8 @@
 import { Direction, Player } from './player.ts'
+import { Position } from './types.ts'
 
 export class AiPlayer implements Player {
-  #position: [number, number] = [0, 0]
+  #position: Position = [0, 0]
 
   get color(): string {
     return '#36a'
@@ -13,11 +14,11 @@ export class AiPlayer implements Player {
     return false
   }
 
-  get position(): [number, number] {
+  get position(): Position {
     return [...this.#position]
   }
 
-  set position([x, y]: [number, number]) {
+  set position([x, y]: Position) {
     this.#position = [x, y]
   }
 

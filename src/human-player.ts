@@ -1,21 +1,21 @@
 import { notNull } from './util.ts'
 import { GAMEPAD } from './gamepad.ts'
 import { Direction, Player } from './player.ts'
-import { Controls } from './controls.ts'
+import { Controls, Position } from './types.ts'
 
 export class HumanPlayer implements Player {
   readonly #gamepadId: string
   #direction: Direction | null
-  #position: [number, number]
+  #position: Position
   readonly #color: string
   #buttonState: Record<number, boolean>
   readonly #controls: Controls
 
-  get position(): [number, number] {
+  get position(): Position {
     return [...this.#position]
   }
 
-  set position([x, y]: [number, number]) {
+  set position([x, y]: Position) {
     this.#position = [x, y]
   }
 

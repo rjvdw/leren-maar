@@ -3,7 +3,7 @@ import { html } from 'lit-html'
 import { HumanPlayer } from './human-player.ts'
 import { AiPlayer } from './ai-player.ts'
 import { DijkstraPlayer } from './dijkstra-player.ts'
-import { Controls } from './controls.ts'
+import { Controls, Position } from './types.ts'
 
 const MAX_TREATS = 5
 
@@ -18,35 +18,39 @@ export class Game {
   readonly #ctx: CanvasRenderingContext2D
   #gridSize: number
   #players: Player[]
-  #treats: [number, number][]
+  #treats: Position[]
   #scores: WeakMap<Player, number>
 
-  get gridWidth() {
+  get width() {
     return Math.floor(this.#canvas.width / this.#gridSize)
   }
 
-  get gridHeight() {
+  set width(w: number) {
+    this.canvasWidth = w * this.#gridSize
+  }
+
+  get height() {
     return Math.floor(this.#canvas.height / this.#gridSize)
   }
 
-  get width(): number {
-    return this.gridWidth * this.#gridSize
+  set height(h: number) {
+    this.canvasHeight = h * this.#gridSize
   }
 
-  set width(w: number) {
+  get canvasWidth(): number {
+    return this.width * this.#gridSize
+  }
+
+  set canvasWidth(w: number) {
     this.#canvas.width = w + 1
   }
 
-  get height(): number {
-    return this.gridHeight * this.#gridSize
+  get canvasHeight(): number {
+    return this.height * this.#gridSize
   }
 
-  set height(h: number) {
+  set canvasHeight(h: number) {
     this.#canvas.height = h + 1
-  }
-
-  set gridSize(s: number) {
-    this.#gridSize = s
   }
 
   constructor(canvas: HTMLCanvasElement, config: GameConfig = {}) {
@@ -57,11 +61,11 @@ export class Game {
     }
     this.#ctx = ctx
 
-    const { width = 640, height = 480, gridSize = 10 } = config
+    const { width = 20, height = 20, gridSize = 24 } = config
 
+    this.#gridSize = gridSize
     this.width = width
     this.height = height
-    this.#gridSize = gridSize
     this.#players = []
     this.#treats = []
     this.#scores = new WeakMap()
@@ -105,8 +109,8 @@ export class Game {
   }
 
   #addRandomTreat() {
-    const x = Math.floor(Math.random() * this.gridWidth)
-    const y = Math.floor(Math.random() * this.gridHeight)
+    const x = Math.floor(Math.random() * this.width)
+    const y = Math.floor(Math.random() * this.height)
 
     if (!this.#treats.find(([x1, y1]) => x1 === x && y1 === y)) {
       this.#treats.push([x, y])
@@ -114,20 +118,20 @@ export class Game {
   }
 
   #clear() {
-    this.#ctx.clearRect(0, 0, this.width, this.height)
+    this.#ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight)
   }
 
   #drawGrid() {
     this.#ctx.beginPath()
     this.#ctx.strokeStyle = '#999'
     this.#ctx.lineWidth = 0.5
-    for (let x = 0; x <= this.width; x += this.#gridSize) {
+    for (let x = 0; x <= this.canvasWidth; x += this.#gridSize) {
       this.#ctx.moveTo(x + 0.5, -0.5)
-      this.#ctx.lineTo(x + 0.5, this.height + 0.5)
+      this.#ctx.lineTo(x + 0.5, this.canvasHeight + 0.5)
     }
-    for (let y = 0; y <= this.height; y += this.#gridSize) {
+    for (let y = 0; y <= this.canvasHeight; y += this.#gridSize) {
       this.#ctx.moveTo(-0.5, y + 0.5)
-      this.#ctx.lineTo(this.width + 0.5, y + 0.5)
+      this.#ctx.lineTo(this.canvasWidth + 0.5, y + 0.5)
     }
     this.#ctx.stroke()
   }
@@ -142,7 +146,7 @@ export class Game {
     )
   }
 
-  #drawCircle([x, y]: [number, number], color: string) {
+  #drawCircle([x, y]: Position, color: string) {
     this.#ctx.beginPath()
     this.#ctx.fillStyle = color
     this.#ctx.arc(
@@ -174,7 +178,7 @@ export class Game {
     for (const player of this.#players) {
       this.#clearPlayer(player)
       const dir = player.move(
-        { width: this.gridWidth, height: this.gridHeight },
+        { width: this.width, height: this.height },
         [...this.#treats],
         this.#players.filter((p) => p !== player).map((p) => p.position),
       )
@@ -194,7 +198,7 @@ export class Game {
           break
       }
 
-      if (x >= 0 && x < this.gridWidth && y >= 0 && y < this.gridHeight) {
+      if (x >= 0 && x < this.width && y >= 0 && y < this.height) {
         player.position = [x, y]
       }
 

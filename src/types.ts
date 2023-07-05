@@ -5,3 +5,5 @@ export type Controls = {
   toggle(): void
   toggleSpeed(): void
 }
+
+export type Position = [number, number]

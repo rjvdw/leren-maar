@@ -1,13 +1,14 @@
 import { Direction, Player } from './player.ts'
+import { Position } from './types.ts'
 
 export class DijkstraPlayer implements Player {
-  #position: [number, number] = [0, 0]
+  #position: Position = [0, 0]
 
-  get position(): [number, number] {
+  get position(): Position {
     return [...this.#position]
   }
 
-  set position([x, y]: [number, number]) {
+  set position([x, y]: Position) {
     this.#position = [x, y]
   }
 
@@ -23,7 +24,7 @@ export class DijkstraPlayer implements Player {
 
   move(
     board: { width: number; height: number },
-    treats: [number, number][],
+    treats: Position[],
   ): Direction | null {
     let treat = this.#findClosestTreat(treats)
     if (treat === undefined) {
@@ -45,7 +46,7 @@ export class DijkstraPlayer implements Player {
     return null
   }
 
-  #findClosestTreat(treats: [number, number][]): [number, number] | undefined {
+  #findClosestTreat(treats: Position[]): Position | undefined {
     let closest = undefined
 
     for (const treat of treats) {
@@ -64,7 +65,7 @@ export class DijkstraPlayer implements Player {
     return closest
   }
 
-  #distance([x0, y0]: [number, number], [x1, y1]: [number, number]): number {
+  #distance([x0, y0]: Position, [x1, y1]: Position): number {
     return Math.abs(x0 - x1) + Math.abs(y0 - y1)
   }
 }

@@ -1,17 +1,14 @@
 import ms from 'ms'
 import { Game } from './game.ts'
 import { html, render } from 'lit-html'
-import { Controls } from './controls.ts'
+import { Controls } from './types.ts'
 
 const canvas = document.getElementById('game')
 if (canvas === null || !(canvas instanceof HTMLCanvasElement)) {
   throw new Error('could not find canvas element in dom')
 }
 
-const game = new Game(canvas, {
-  width: 240,
-  height: 240,
-})
+const game = new Game(canvas)
 let paused = true
 let fast = false
 let lastRender = 0
